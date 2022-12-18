@@ -94,9 +94,7 @@ class ESP:
         while True:
             sleep(1)
             now = datetime.now(timezone(TIMEZONE))
-            if now > self.homie_init_time + timedelta(
-                seconds=HOMIE_INIT_SECONDS
-            ):
+            if now > self.homie_init_time + timedelta(seconds=HOMIE_INIT_SECONDS):
                 self.homie_init()
             elif now > self.next_api_update:
                 self.get_area()
@@ -126,7 +124,7 @@ class ESP:
         self.homie_init_area()
         self.homie_init_api()
         self.homie_init_status()
-        #self.homie_init_events()
+        # self.homie_init_events()
 
         # device ready
         self.homie_publish_device_state("ready")
@@ -139,7 +137,7 @@ class ESP:
         self.homie_publish(topic, HOMIE_DEVICE_NAME)
         self.homie_publish_device_state("init")
         topic = "{}/{}/{}".format(HOMIE_BASE_TOPIC, HOMIE_DEVICE_ID, "$nodes")
-        nodes = "area,api,status" #events"
+        nodes = "area,api,status"  # ,event1,event2,event3"
         self.homie_publish(topic, nodes)
         topic = "{}/{}/{}".format(HOMIE_BASE_TOPIC, HOMIE_DEVICE_ID, "$extensions")
         self.homie_publish(topic, "")
@@ -149,7 +147,7 @@ class ESP:
     def homie_publish_all(self, init=False):
         self.homie_publish_area()
         self.homie_publish_api()
-        #self.homie_publish_events()
+        # self.homie_publish_events()
         self.homie_publish_status()
         self.homie_publish_all_time = datetime.now(timezone(TIMEZONE))
 
@@ -213,7 +211,7 @@ class ESP:
             HOMIE_BASE_TOPIC, HOMIE_DEVICE_ID, node_id, property_id, "$name"
         )
         self.homie_publish(topic, name)
-        if datatype=="datetime":
+        if datatype == "datetime":
             datatype = "string"
         topic = "{}/{}/{}/{}/{}".format(
             HOMIE_BASE_TOPIC, HOMIE_DEVICE_ID, node_id, property_id, "$datatype"
@@ -402,7 +400,7 @@ class ESP:
         )
 
     def homie_init_events(self):
-        for i in range(1, HOMIE_MAX_EVENTS+1):
+        for i in range(1, HOMIE_MAX_EVENTS + 1):
             node_id = "event{}".format(i)
             self.homie_init_node(
                 node_id=node_id,
@@ -433,10 +431,10 @@ class ESP:
             )
 
     def homie_publish_events(self):
-        for i in range(1, HOMIE_MAX_EVENTS+1):
+        for i in range(1, HOMIE_MAX_EVENTS + 1):
             node_id = "event{}".format(i)
             if len(self.events) >= i:
-                event = self.events[i-1]
+                event = self.events[i - 1]
             else:
                 event = {
                     "start": None,
@@ -494,7 +492,9 @@ class ESP:
         Get awxonsa until end of day on the datetime passed.
         """
         tomorrow = dt + timedelta(days=1)
-        return (timezone(TIMEZONE).localize(datetime.combine(tomorrow, time.min)) - dt).total_seconds()
+        return (
+            timezone(TIMEZONE).localize(datetime.combine(tomorrow, time.min)) - dt
+        ).total_seconds()
 
     def update_next_api_update(self):
         remaining = self.api_limit - self.api_count
@@ -531,46 +531,55 @@ class ESP:
             response = requests.request("GET", url, headers=headers, data=payload)
             r = response.json()
             self.events = []
-            for event in r['events']:
-               event["start_string"] = event["start"]
-               event["start"] = datetime.fromisoformat(event["start_string"])
-               event["end_string"] = event["end"]
-               event["end"] = datetime.fromisoformat(event["end_string"])
-               self.events.append(event)
+            for event in r["events"]:
+                event["start_string"] = event["start"]
+                event["start"] = datetime.fromisoformat(event["start_string"])
+                event["end_string"] = event["end"]
+                event["end"] = datetime.fromisoformat(event["end_string"])
+                self.events.append(event)
             self.last_api_update = datetime.now(timezone(TIMEZONE))
             self.get_api()
 
     def update_loadshedding_status(self):
-        now=datetime.now(timezone(TIMEZONE))
-        self.status_loadshedding=False
-        self.status_loadshedding_start = None
-        self.status_loadshedding_end = None
+        now = datetime.now(timezone(TIMEZONE))
+        self.status_loadshedding = False
+        self.status_loadshedding_start = FAR_AWAY_DATE
+        self.status_loadshedding_end = FAR_AWAY_DATE
         self.status_note = "Not loadshedding"
         for event in self.events:
-            if now>event["start"] and now<event["end"]:
-                self.status_loadshedding=True
+            if now > event["start"] and now < event["end"]:
+                self.status_loadshedding = True
                 self.status_loadshedding_end = event["end"]
                 self.status_note = event["note"]
             if event["start"] > now:
-               if self.status_loadshedding_start == None:
-                   self.status_loadshedding_start = event["start"]
-               elif self.status_loadshedding_start < event["start"]:
-                   self.status_loadshedding_start = event["start"]
-        self.next_status_time = now + timedelta(minutes = 5)
+                if self.status_loadshedding_start == None:
+                    self.status_loadshedding_start = event["start"]
+                elif self.status_loadshedding_start > event["start"]:
+                    self.status_loadshedding_start = event["start"]
+            if event["end"] > now:
+                if self.status_loadshedding_end == None:
+                    self.status_loadshedding_end = event["end"]
+                elif self.status_loadshedding_end > event["end"]:
+                    self.status_loadshedding_end = event["end"]
+        self.next_status_time = now + timedelta(minutes=5)
         if self.status_loadshedding_start == None:
             self.status_warning_5min = False
             self.status_warning_15min = False
         else:
-            if self.status_loadshedding_start - now < timedelta(minutes = 5):
+            if self.status_loadshedding_start - now < timedelta(minutes=5):
                 self.status_warning_5min = True
             else:
                 self.status_warning_5min = False
-                self.next_status_time = self.status_loadshedding_start - timedelta(minutes=5)
-            if self.status_loadshedding_start - now < timedelta(minutes = 15):
+                self.next_status_time = self.status_loadshedding_start - timedelta(
+                    minutes=5
+                )
+            if self.status_loadshedding_start - now < timedelta(minutes=15):
                 self.status_warning_15min = True
             else:
                 self.status_warning_15min = False
-                self.next_status_time = self.status_loadshedding_start - timedelta(minutes=5)
+                self.next_status_time = self.status_loadshedding_start - timedelta(
+                    minutes=5
+                )
             if self.status_loadshedding_start < self.next_status_time:
                 self.next_status_time = self.status_loadshedding_start
         if self.status_loadshedding_end == None:
