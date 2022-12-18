@@ -47,16 +47,20 @@ class ESP:
 
         # status
         self.status_loadshedding = None
-        self.status_loadshedding_start = None
-        self.status_loadshedding_end = None
+        self.status_loadshedding_start = FAR_AWAY_DATE
+        self.status_loadshedding_end = FAR_AWAY_DATE
         self.status_warning_5min = None
         self.status_warning_15min = None
         self.status_note = None
 
         # timers
         self.homie_init_time = datetime(1900, 1, 1, 0, 0, 0, 0, timezone(TIMEZONE))
-        self.homie_publish_all_time = datetime(1900, 1, 1, 0, 0, 0, 0, timezone(TIMEZONE))
-        self.esp_api_counts_refresh_time = datetime(1900, 1, 1, 0, 0, 0, 0, timezone(TIMEZONE))
+        self.homie_publish_all_time = datetime(
+            1900, 1, 1, 0, 0, 0, 0, timezone(TIMEZONE)
+        )
+        self.esp_api_counts_refresh_time = datetime(
+            1900, 1, 1, 0, 0, 0, 0, timezone(TIMEZONE)
+        )
         self.next_status_time = datetime(1900, 1, 1, 0, 0, 0, 0, timezone(TIMEZONE))
 
         logger.debug("Initialised ESP class.")
@@ -294,7 +298,7 @@ class ESP:
         self.homie_init_node(
             node_id="status",
             name="Loadshedding status",
-            properties="loadshedding,warning15min,warning5min,loadsheddingstart,loadsheddingend",
+            properties="loadshedding,warning15min,warning5min,loadsheddingstart,loadsheddingend,note",
         )
         self.homie_init_property(
             node_id="status",
@@ -326,39 +330,56 @@ class ESP:
             name="Loadshedding End Time",
             datatype="datetime",
         )
+        self.homie_init_property(
+            node_id="status",
+            property_id="note",
+            name="Status Note",
+            datatype="string",
+        )
 
     def homie_publish_status(self):
         self.homie_publish_property(
             node_id="status",
             property_id="loadshedding",
             datatype="boolean",
-            value=self.status_loadshedding
+            value=self.status_loadshedding,
         )
         self.homie_publish_property(
             node_id="status",
             property_id="warning5min",
             datatype="boolean",
-            value=self.status_warning_5min
+            value=self.status_warning_5min,
         )
         self.homie_publish_property(
             node_id="status",
             property_id="warning15min",
             datatype="boolean",
-            value=self.status_warning_15min
+            value=self.status_warning_15min,
         )
         self.homie_publish_property(
             node_id="status",
             property_id="loadsheddingstart",
             datatype="datetime",
-            value=self.status_loadshedding_start
+            value=self.status_loadshedding_start,
         )
         self.homie_publish_property(
             node_id="status",
             property_id="loadsheddingend",
             datatype="datetime",
-            value=self.status_loadshedding_end
+            value=self.status_loadshedding_end,
         )
-
+        self.homie_publish_property(
+            node_id="status",
+            property_id="loadsheddingend",
+            datatype="datetime",
+            value=self.status_loadshedding_end,
+        )
+        self.homie_publish_property(
+            node_id="status",
+            property_id="note",
+            datatype="string",
+            value=self.status_note,
+        )
 
     def homie_publish_area(self):
         self.homie_publish_property(
@@ -501,7 +522,7 @@ class ESP:
         if self.api_limit - self.api_count > 0:
             logger.debug("Get area...")
             if ESP_TEST:
-                test = "&test=future"
+                test = "&test=current"
             else:
                 test = ""
             url = ESP_API_URL + "area" + "?id=" + ESP_AREA_ID + test

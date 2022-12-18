@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 import logging
+from datetime import datetime
+from pytz import timezone
 
 # Default configuration.
 # Do not edit this.  Copy config_sample.py to config.py and edit that.
@@ -38,4 +40,5 @@ HOMIE_IMPLEMENTATION = "esp_mqtt"
 HOMIE_MAX_EVENTS = 3
 
 # TZ
-TIMEZONE= "Africa/Johannesburg"
+TIMEZONE = "Africa/Johannesburg"
+FAR_AWAY_DATE = datetime(2099, 1, 1, 9, 9, 9, 0, timezone(TIMEZONE))
