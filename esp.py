@@ -47,7 +47,8 @@ class ESP:
 
         # status
         self.status_loadshedding = None
-        self.status_loadshedding_start = FAR_AWAY_DATE
+        self.status_loadshedding_next_start = FAR_AWAY_DATE
+        self.status_loadshedding_next_end = FAR_AWAY_DATE
         self.status_loadshedding_end = FAR_AWAY_DATE
         self.status_warning_5min = None
         self.status_warning_15min = None
@@ -296,7 +297,7 @@ class ESP:
         self.homie_init_node(
             node_id="status",
             name="Loadshedding status",
-            properties="loadshedding,warning15min,warning5min,loadsheddingstart,loadsheddingend,note",
+            properties="loadshedding,warning15min,warning5min,loadsheddingnextstart,loadsheddingnextend,loadsheddingend,note",
         )
         self.homie_init_property(
             node_id="status",
@@ -318,8 +319,14 @@ class ESP:
         )
         self.homie_init_property(
             node_id="status",
-            property_id="loadsheddingstart",
+            property_id="loadsheddingnextstart",
             name="Loadshedding Start Time",
+            datatype="datetime",
+        )
+        self.homie_init_property(
+            node_id="status",
+            property_id="loadsheddingnextend",
+            name="Loadshedding End Time",
             datatype="datetime",
         )
         self.homie_init_property(
@@ -356,15 +363,15 @@ class ESP:
         )
         self.homie_publish_property(
             node_id="status",
-            property_id="loadsheddingstart",
+            property_id="loadsheddingnextstart",
             datatype="datetime",
-            value=self.status_loadshedding_start,
+            value=self.status_loadshedding_next_start,
         )
         self.homie_publish_property(
             node_id="status",
-            property_id="loadsheddingend",
+            property_id="loadsheddingnextend",
             datatype="datetime",
-            value=self.status_loadshedding_end,
+            value=self.status_loadshedding_next_end,
         )
         self.homie_publish_property(
             node_id="status",
@@ -543,7 +550,8 @@ class ESP:
     def update_loadshedding_status(self):
         now = datetime.now(timezone(TIMEZONE))
         self.status_loadshedding = False
-        self.status_loadshedding_start = FAR_AWAY_DATE
+        self.status_loadshedding_next_start = FAR_AWAY_DATE
+        self.status_loadshedding_next_end = FAR_AWAY_DATE
         self.status_loadshedding_end = FAR_AWAY_DATE
         self.status_note = "Not loadshedding"
         for event in self.events:
@@ -552,36 +560,36 @@ class ESP:
                 self.status_loadshedding_end = event["end"]
                 self.status_note = event["note"]
             if event["start"] > now:
-                if self.status_loadshedding_start == None:
-                    self.status_loadshedding_start = event["start"]
-                elif self.status_loadshedding_start > event["start"]:
-                    self.status_loadshedding_start = event["start"]
-            if event["end"] > now:
-                if self.status_loadshedding_end == None:
-                    self.status_loadshedding_end = event["end"]
-                elif self.status_loadshedding_end > event["end"]:
-                    self.status_loadshedding_end = event["end"]
+                if self.status_loadshedding_next_start == None:
+                    self.status_loadshedding_next_start = event["start"]
+                elif self.status_loadshedding_next_start > event["start"]:
+                    self.status_loadshedding_next_start = event["start"]
+                if event["end"] > now:
+                    if self.status_loadshedding_next_end == None:
+                        self.status_loadshedding_next_end = event["end"]
+                    elif self.status_loadshedding_next_end > event["end"]:
+                        self.status_loadshedding_next_end = event["end"]
         self.next_status_time = now + timedelta(minutes=5)
-        if self.status_loadshedding_start == None:
+        if self.status_loadshedding_next_start == None:
             self.status_warning_5min = False
             self.status_warning_15min = False
         else:
-            if self.status_loadshedding_start - now < timedelta(minutes=5):
+            if self.status_loadshedding_next_start - now < timedelta(minutes=5):
                 self.status_warning_5min = True
             else:
                 self.status_warning_5min = False
-                self.next_status_time = self.status_loadshedding_start - timedelta(
+                self.next_status_time = self.status_loadshedding_next_start - timedelta(
                     minutes=5
                 )
-            if self.status_loadshedding_start - now < timedelta(minutes=15):
+            if self.status_loadshedding_next_start - now < timedelta(minutes=15):
                 self.status_warning_15min = True
             else:
                 self.status_warning_15min = False
-                self.next_status_time = self.status_loadshedding_start - timedelta(
+                self.next_status_time = self.status_loadshedding_next_start - timedelta(
                     minutes=5
                 )
-            if self.status_loadshedding_start < self.next_status_time:
-                self.next_status_time = self.status_loadshedding_start
+            if self.status_loadshedding_next_start < self.next_status_time:
+                self.next_status_time = self.status_loadshedding_next_start
         if self.status_loadshedding_end == None:
             pass
         else:
