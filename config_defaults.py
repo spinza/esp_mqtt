@@ -41,4 +41,4 @@ HOMIE_MAX_EVENTS = 3
 
 # TZ
 TIMEZONE = "Africa/Johannesburg"
-FAR_AWAY_DATE = datetime(2099, 1, 1, 9, 9, 9, 0, timezone(TIMEZONE))
+FAR_AWAY_DATE = datetime(2099, 1, 1, 1, 1, 1, 1, timezone(TIMEZONE))
