@@ -265,7 +265,7 @@ class ESP:
     def homie_init_api(self):
         self.homie_init_node(
             node_id="api",
-            name="Area",
+            name="API",
             properties="lastapiupdate,apicount,apilimit,apilimittype",
         )
         self.homie_init_property(
@@ -511,41 +511,51 @@ class ESP:
                 seconds=t / (remaining + 1)
             )
 
+    def get_request(self, url, data={}):
+        logger.debug("get_request: {} ".format(url))
+        headers = {"token": ESP_API_TOKEN}
+        try:
+            response = requests.request("GET", url, headers=headers, data=data)
+            r = response.json()
+        except:
+            logger.error("Problem with get request to {}".format(url))
+            r = None
+        return r
+
     def get_api(self):
         logger.debug("Get api_allowance...")
         url = ESP_API_URL + "api_allowance"
-        payload = {}
-        headers = {"token": ESP_API_TOKEN}
-        response = requests.request("GET", url, headers=headers, data=payload)
-        r = response.json()
-        self.api_count = r["allowance"]["count"]
-        self.api_limit = r["allowance"]["limit"]
-        self.api_limit_type = r["allowance"]["type"]
-        self.update_next_api_update()
-        self.esp_api_counts_refresh_time = datetime.now(timezone(TIMEZONE))
+        r = self.get_request(url=url)
+        if r != None:
+            self.api_count = r["allowance"]["count"]
+            self.api_limit = r["allowance"]["limit"]
+            self.api_limit_type = r["allowance"]["type"]
+            self.update_next_api_update()
+            self.esp_api_counts_refresh_time = datetime.now(timezone(TIMEZONE))
 
     def get_area(self):
         self.get_api()
-        if self.api_limit - self.api_count > 0:
-            logger.debug("Get area...")
-            if ESP_TEST:
-                test = "&test=current"
-            else:
-                test = ""
-            url = ESP_API_URL + "area" + "?id=" + ESP_AREA_ID + test
-            payload = {}
-            headers = {"token": ESP_API_TOKEN}
-            response = requests.request("GET", url, headers=headers, data=payload)
-            r = response.json()
-            self.events = []
-            for event in r["events"]:
-                event["start_string"] = event["start"]
-                event["start"] = datetime.fromisoformat(event["start_string"])
-                event["end_string"] = event["end"]
-                event["end"] = datetime.fromisoformat(event["end_string"])
-                self.events.append(event)
-            self.last_api_update = datetime.now(timezone(TIMEZONE))
-            self.get_api()
+        if self.api_limit != None and self.api_count != None:
+            if self.api_limit - self.api_count > 0:
+                logger.debug("Get area...")
+                if ESP_TEST:
+                    test = "&test=current"
+                else:
+                    test = ""
+                url = ESP_API_URL + "area" + "?id=" + ESP_AREA_ID + test
+                r = self.get_request(url=url)
+                if r != None:
+                    self.area_name = r["info"]["name"]
+                    self.region_name = r["info"]["region"]
+                    self.events = []
+                    for event in r["events"]:
+                        event["start_string"] = event["start"]
+                        event["start"] = datetime.fromisoformat(event["start_string"])
+                        event["end_string"] = event["end"]
+                        event["end"] = datetime.fromisoformat(event["end_string"])
+                        self.events.append(event)
+                    self.last_api_update = datetime.now(timezone(TIMEZONE))
+                self.get_api()
 
     def update_loadshedding_status(self):
         now = datetime.now(timezone(TIMEZONE))
