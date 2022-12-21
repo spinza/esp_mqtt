@@ -9,7 +9,8 @@ This code takes EskomSePush API loadshedding schedule for a particular area and 
 ```
 curl --location --request GET 'https://developer.sepush.co.za/business/2.0/areas_search?text=gardens' --header 'token: ABCDEF-ABCDEF-ABCDEF-ABCDEF'
 ```
-3. Create a `config.py` file.  Below an example file:
+3. Clone the code locally.
+4. Create a `config.py` file.  Below an example file:
 ```python
 !/usr/bin/env python
 import logging
@@ -27,9 +28,14 @@ MQTT_PORT = 1883
 ESP_API_TOKEN = "ABCDEF-ABCDEF-ABCDEF-ABCDEF"
 ESP_AREA_ID = "capetown-7-gardens"
 ```
-3. Look at `config_defaults.py` for further settings that can be overwritten in `config.py`.
-4. The service should publish details of upcoming (or current) loadshedding to MQTT using the [Homie convention](https://homieiot.github.io/).  
-5. Use the above in your home automation (for example using the [MQTT binding in Openhab](https://www.openhab.org/addons/bindings/mqtt/)). Openhab should automatically pick up variou Things as it recognises the Homie convention.
+5. Look at `config_defaults.py` for further settings that can be overwritten in `config.py`.
+6. Create an enviroment with `python3 -m venv venv` (run it from the code folder.)
+7. Activate the environment with `source venv/bin/activate`
+8. Install the requirements with `pip -f requirements.txt`
+9. Run it with `python main.py`
+10.  You could also create a systemd service using the example script editing paths and users as appropriate.
+11. The service should publish details of upcoming (or current) loadshedding to MQTT using the [Homie convention](https://homieiot.github.io/).  
+12. Use the above in your home automation (for example using the [MQTT binding in Openhab](https://www.openhab.org/addons/bindings/mqtt/)). Openhab should automatically pick up variou Things as it recognises the Homie convention.
 
 # What is published?
 
