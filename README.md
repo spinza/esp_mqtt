@@ -2,6 +2,8 @@
 
 This code takes EskomSePush API loadshedding schedule for a particular area and publishes as a MQTT update for home automation or other purposes.
 
+I assume below a recent Ubuntu distro.  Probably on Debian and possibly other Linux distros.
+
 # Usage
 
 1. Get a token for the API [from here](https://eskomsepush.gumroad.com/l/api).
