@@ -33,4 +33,89 @@ ESP_AREA_ID = "capetown-7-gardens"
 
 # What is published?
 
-TBD
+The script publishes in the homie format which means it can be automatically discovered by Openhab as an example.  Below a sample dump of the topics published.  The `$` endpoints such as `$name` represent Homie specific properties and can be ignored if not using Homie.
+
+
+```
+homie/eskomsepush/status/$name Loadshedding status
+homie/eskomsepush/status/$properties loadshedding,warning15min,warning5min,loadsheddingnextstart,loadsheddingnextend,loadsheddingend,note
+homie/eskomsepush/status/loadshedding false
+homie/eskomsepush/status/loadshedding/$name Current Loadshedding
+homie/eskomsepush/status/loadshedding/$datatype boolean
+homie/eskomsepush/status/loadshedding/$settable false
+homie/eskomsepush/status/loadshedding/$retained true
+homie/eskomsepush/status/warning15min false
+homie/eskomsepush/status/warning15min/$name Loadshedding 15 minute Warning
+homie/eskomsepush/status/warning15min/$datatype boolean
+homie/eskomsepush/status/warning15min/$settable false
+homie/eskomsepush/status/warning15min/$retained true
+homie/eskomsepush/status/warning5min false
+homie/eskomsepush/status/warning5min/$name Loadshedding 5 minute Warning
+homie/eskomsepush/status/warning5min/$datatype boolean
+homie/eskomsepush/status/warning5min/$settable false
+homie/eskomsepush/status/warning5min/$retained true
+homie/eskomsepush/status/loadsheddingnextstart 2022-12-22T02:00:00+02:00
+homie/eskomsepush/status/loadsheddingnextstart/$name Loadshedding Start Time
+homie/eskomsepush/status/loadsheddingnextstart/$datatype string
+homie/eskomsepush/status/loadsheddingnextstart/$settable false
+homie/eskomsepush/status/loadsheddingnextstart/$retained true
+homie/eskomsepush/status/loadsheddingnextend 2022-12-22T04:30:00+02:00
+homie/eskomsepush/status/loadsheddingnextend/$name Loadshedding End Time
+homie/eskomsepush/status/loadsheddingnextend/$datatype string
+homie/eskomsepush/status/loadsheddingnextend/$settable false
+homie/eskomsepush/status/loadsheddingnextend/$retained true
+homie/eskomsepush/status/loadsheddingend 2099-01-01T01:01:01.000001+01:52
+homie/eskomsepush/status/loadsheddingend/$name Loadshedding End Time
+homie/eskomsepush/status/loadsheddingend/$datatype string
+homie/eskomsepush/status/loadsheddingend/$settable false
+homie/eskomsepush/status/loadsheddingend/$retained true
+homie/eskomsepush/status/note Not loadshedding
+homie/eskomsepush/status/note/$name Status Note
+homie/eskomsepush/status/note/$datatype string
+homie/eskomsepush/status/note/$settable false
+homie/eskomsepush/status/note/$retained true
+homie/eskomsepush/$homie 4.0.0
+homie/eskomsepush/$name Eskom Loadshedding Schedule
+homie/eskomsepush/$state ready
+homie/eskomsepush/$nodes area,api,status
+homie/eskomsepush/area/$name Area
+homie/eskomsepush/area/$properties areaid,areaname,regionname
+homie/eskomsepush/area/areaid capetown-7-gardens
+homie/eskomsepush/area/areaid/$name Area ID
+homie/eskomsepush/area/areaid/$datatype string
+homie/eskomsepush/area/areaid/$settable false
+homie/eskomsepush/area/areaid/$retained true
+homie/eskomsepush/area/areaname Gardens (7)
+homie/eskomsepush/area/areaname/$name Area Name
+homie/eskomsepush/area/areaname/$datatype string
+homie/eskomsepush/area/areaname/$settable false
+homie/eskomsepush/area/areaname/$retained true
+homie/eskomsepush/area/regionname City of Cape Town
+homie/eskomsepush/area/regionname/$name Region Name
+homie/eskomsepush/area/regionname/$datatype string
+homie/eskomsepush/area/regionname/$settable false
+homie/eskomsepush/area/regionname/$retained true
+homie/eskomsepush/api/$name API
+homie/eskomsepush/api/$properties lastapiupdate,apicount,apilimit,apilimittype
+homie/eskomsepush/api/lastapiupdate 2022-12-21T23:11:44.187581+02:00
+homie/eskomsepush/api/lastapiupdate/$name Last Update
+homie/eskomsepush/api/lastapiupdate/$datatype string
+homie/eskomsepush/api/lastapiupdate/$settable false
+homie/eskomsepush/api/lastapiupdate/$retained true
+homie/eskomsepush/api/apicount 48
+homie/eskomsepush/api/apicount/$name API Count
+homie/eskomsepush/api/apicount/$datatype integer
+homie/eskomsepush/api/apicount/$settable false
+homie/eskomsepush/api/apicount/$retained true
+homie/eskomsepush/api/apilimit 50
+homie/eskomsepush/api/apilimit/$name API Limit
+homie/eskomsepush/api/apilimit/$datatype integer
+homie/eskomsepush/api/apilimit/$settable false
+homie/eskomsepush/api/apilimit/$retained true
+homie/eskomsepush/api/apilimittype daily
+homie/eskomsepush/api/apilimittype/$name API Limit Type
+homie/eskomsepush/api/apilimittype/$datatype string
+homie/eskomsepush/api/apilimittype/$settable false
+homie/eskomsepush/api/apilimittype/$retained true
+homie/eskomsepush/$implementation esp_mqtt
+```
