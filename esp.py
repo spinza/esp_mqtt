@@ -73,6 +73,7 @@ class ESP:
             username=MQTT_USERNAME,
             password=MQTT_PASSWORD,
         )
+        self.do_homie_init = True
 
         logger.debug("Initialised ESP class.")
 
@@ -82,7 +83,7 @@ class ESP:
             self.mqtt.subscribe(
                 "{}/{}/{}/{}/{}/{}".format(HOMIE_BASE_TOPIC, "+", "+", "+", "set", "#")
             )
-
+            self.do_homie_init = True
         else:
             logger.info("Connectetion to MQTT failed return code of {}.".format(rc))
 
@@ -133,7 +134,7 @@ class ESP:
         while True:
             sleep(5)
             now = datetime.now(timezone(TIMEZONE))
-            if now > self.homie_init_time + timedelta(seconds=HOMIE_INIT_SECONDS):
+            if self.do_homie_init or now > self.homie_init_time + timedelta(seconds=HOMIE_INIT_SECONDS):
                 self.homie_init()
             elif now > self.next_api_update:
                 self.get_area()
@@ -168,6 +169,7 @@ class ESP:
         # device ready
         self.homie_publish_device_state("ready")
         self.homie_init_time = datetime.now(timezone(TIMEZONE))
+        self.do_homie_init = False
 
     def homie_init_device(self):
         topic = "{}/{}/{}".format(HOMIE_BASE_TOPIC, HOMIE_DEVICE_ID, "$homie")
