@@ -20,6 +20,8 @@ class ESP:
         logger.debug("Initialising ESP class...")
         # mqtt client
         self.mqtt = mqtt.Client(client_id=MQTT_CLIENT_ID)
+        self.mqtt.on_connect = self.on_mqtt_connect
+        self.mqtt.on_disconnect = self.on_mqtt_disconnect
         self.mqtt.on_message = self.homie_message
         # MQTT Will
         topic = "{}/{}/{}".format(HOMIE_BASE_TOPIC, HOMIE_DEVICE_ID, "$state")
@@ -64,7 +66,27 @@ class ESP:
         )
         self.next_status_time = datetime(1900, 1, 1, 0, 0, 0, 0, timezone(TIMEZONE))
 
+        self.mqtt_connect(
+            host=MQTT_HOST,
+            port=MQTT_PORT,
+            username=MQTT_USERNAME,
+            password=MQTT_PASSWORD,
+        )
+
         logger.debug("Initialised ESP class.")
+
+    def on_mqtt_connect(self, client, userdata, flags, rc):
+        if rc == 0:
+            logger.info("Connected to MQTT...")
+            self.mqtt.subscribe(
+                "{}/{}/{}/{}/{}/{}".format(HOMIE_BASE_TOPIC, "+", "+", "+", "set", "#")
+            )
+
+        else:
+            logger.info("Connectetion to MQTT failed return code of {}.".format(rc))
+
+    def on_mqtt_disconnect(self, client, userdata, rc):
+        logging.info("MQTT was disconnected with return code of {}".format(rc))
 
     def mqtt_connect(
         self,
@@ -76,14 +98,19 @@ class ESP:
         bind_address="",
     ):
         logger.info("Connecting to mqtt.")
+
         if username != None and password != None:
             self.mqtt.username_pw_set(username=username, password=password)
-        self.mqtt.connect(host, port, keepalive, bind_address)
+        error = True
+        while error:
+            try:
+                self.mqtt.connect(host, port, keepalive, bind_address)
+                error = False
+            except Exception as e:
+                logging.error("{} for MQTT.  Retrying...".format(e))
+                error = True
+                sleep(5)
         self.mqtt.loop_start()
-        self.mqtt.subscribe(
-            "{}/{}/{}/{}/{}/{}".format(HOMIE_BASE_TOPIC, "+", "+", "+", "set", "#")
-        )
-        logger.info("Connected to mqtt.")
 
     def homie_publish(self, topic, message):
         self.mqtt.publish(
@@ -103,7 +130,7 @@ class ESP:
     def main_loop(self):
         """Wait for and then process messages."""
         while True:
-            sleep(1)
+            sleep(5)
             now = datetime.now(timezone(TIMEZONE))
             if now > self.homie_init_time + timedelta(seconds=HOMIE_INIT_SECONDS):
                 self.homie_init()
