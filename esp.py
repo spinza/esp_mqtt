@@ -23,6 +23,7 @@ class ESP:
         self.mqtt.on_connect = self.on_mqtt_connect
         self.mqtt.on_disconnect = self.on_mqtt_disconnect
         self.mqtt.on_message = self.homie_message
+
         # MQTT Will
         topic = "{}/{}/{}".format(HOMIE_BASE_TOPIC, HOMIE_DEVICE_ID, "$state")
         self.mqtt.will_set(
@@ -86,7 +87,7 @@ class ESP:
             logger.info("Connectetion to MQTT failed return code of {}.".format(rc))
 
     def on_mqtt_disconnect(self, client, userdata, rc):
-        logging.info("MQTT was disconnected with return code of {}".format(rc))
+        logger.info("MQTT was disconnected with return code of {}".format(rc))
 
     def mqtt_connect(
         self,
@@ -107,7 +108,7 @@ class ESP:
                 self.mqtt.connect(host, port, keepalive, bind_address)
                 error = False
             except Exception as e:
-                logging.error("{} for MQTT.  Retrying...".format(e))
+                logger.error("{} for MQTT.  Retrying...".format(e))
                 error = True
                 sleep(5)
         self.mqtt.loop_start()
