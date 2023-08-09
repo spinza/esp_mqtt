@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import logging
 
-logger = logging.getLogger("paradox_mqtt").getChild(__name__)
+logger = logging.getLogger("esp_mqtt").getChild(__name__)
 from time import sleep, time
 from datetime import datetime, timedelta, time
 import paho.mqtt.client as mqtt
