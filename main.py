@@ -27,5 +27,7 @@ import esp
 
 esp = esp.ESP()
 
-esp.mqtt_connect(host=MQTT_HOST, port=MQTT_PORT, username=MQTT_USERNAME, password=MQTT_PASSWORD)
+esp.mqtt_connect(
+    host=MQTT_HOST, port=MQTT_PORT, username=MQTT_USERNAME, password=MQTT_PASSWORD
+)
 esp.main_loop()

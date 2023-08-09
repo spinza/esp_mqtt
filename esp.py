@@ -66,9 +66,17 @@ class ESP:
 
         logger.debug("Initialised ESP class.")
 
-    def mqtt_connect(self, host="localhost", port=1883, username = None, password = None, keepalive=60, bind_address=""):
+    def mqtt_connect(
+        self,
+        host="localhost",
+        port=1883,
+        username=None,
+        password=None,
+        keepalive=60,
+        bind_address="",
+    ):
         logger.info("Connecting to mqtt.")
-        if username != None and password !=None:
+        if username != None and password != None:
             self.mqtt.username_pw_set(username=username, password=password)
         self.mqtt.connect(host, port, keepalive, bind_address)
         self.mqtt.loop_start()
@@ -541,7 +549,7 @@ class ESP:
             if self.api_limit - self.api_count > 0:
                 logger.debug("Get area...")
                 if ESP_TEST:
-                    test = "&test=current"
+                    test = "&test=future"
                 else:
                     test = ""
                 url = ESP_API_URL + "area" + "?id=" + ESP_AREA_ID + test
