@@ -66,8 +66,10 @@ class ESP:
 
         logger.debug("Initialised ESP class.")
 
-    def mqtt_connect(self, host="localhost", port=1883, keepalive=60, bind_address=""):
+    def mqtt_connect(self, host="localhost", port=1883, username = None, password = None, keepalive=60, bind_address=""):
         logger.info("Connecting to mqtt.")
+        if username != None and password !=None:
+            self.mqtt.username_pw_set(username=username, password=password)
         self.mqtt.connect(host, port, keepalive, bind_address)
         self.mqtt.loop_start()
         self.mqtt.subscribe(

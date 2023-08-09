@@ -15,8 +15,9 @@ LOGGING_FILE = None  # or set to file path LOGGING_FILE="/var/log/esp_mqtt.log"
 MQTT_HOST = "localhost"
 MQTT_PORT = 1883
 MQTT_KEEPALIVE = 60
-MQTT_BIND_ADDRESS = ""
 MQTT_CLIENT_ID = "esp_mqtt"
+MQTT_USERNAME = None
+MQTT_PASSWORD = None
 
 # ESP API
 ESP_API_URL = "https://developer.sepush.co.za/business/2.0/"

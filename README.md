@@ -25,6 +25,9 @@ LOGGING_FILE = None
 # MQTT
 MQTT_HOST = "localhost"
 MQTT_PORT = 1883
+# MQTT user and password below only set if used
+# MQTT_USERNAME = "user"
+# MQTT_PASSWORD = "password"
 
 # ESP API
 ESP_API_TOKEN = "ABCDEF-ABCDEF-ABCDEF-ABCDEF"
